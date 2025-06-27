@@ -22,9 +22,10 @@ const SignUpForm = () => {
     if (formData.password !== formData.confirmPassword) {
       return alert("Password not matching");
     }
+    console.log("sakdjhb",process.env.REACT_APP_FIREBASE_API_KEY)
 
     fetch(
-      "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDLOTD964PNfHMmKh2v3Ad2DhAeDuOI60c",
+      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${process.env.REACT_APP_FIREBASE_API_KEY}`,
       {
         method: "POST",
         body: JSON.stringify({
