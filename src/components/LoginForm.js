@@ -1,12 +1,13 @@
 import React, { useContext, useState } from "react";
 import AppContext from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
 
-const SignUpForm = () => {
-  const { setIsRegister } = useContext(AppContext);
+const LoginForm = () => {
+  const { setIsRegister, setIsLoggedIn } = useContext(AppContext);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: "",
   });
   const changeHandler = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -14,20 +15,12 @@ const SignUpForm = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    if (
-      formData.email === "" ||
-      formData.password === "" ||
-      formData.confirmPassword === ""
-    ) {
+    if (formData.email === "" || formData.password === "") {
       return alert("All fields required");
     }
-    if (formData.password !== formData.confirmPassword) {
-      return alert("Password not matching");
-    }
-    console.log("sakdjhb", process.env.REACT_APP_FIREBASE_API_KEY);
 
     fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${process.env.REACT_APP_FIREBASE_API_KEY}`,
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.REACT_APP_FIREBASE_API_KEY}`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -41,11 +34,16 @@ const SignUpForm = () => {
       }
     ).then((res) => {
       if (res.ok) {
-        alert("User has successfully signed up");
-        setFormData({ email: "", password: "", confirmPassword: "" });
+        return res.json().then((data) => {
+          let tokenId = data.idToken;
+          localStorage.setItem("token", tokenId);
+          alert("Logged In");
+          setIsLoggedIn(true);
+          navigate("/profile");
+        });
       } else {
         return res.json().then((data) => {
-          let errorMsg = "Authentication Failed";
+          let errorMsg = "Wrong Credential";
           if (data) {
             errorMsg = data?.error?.message;
           }
@@ -66,7 +64,7 @@ const SignUpForm = () => {
         }}
       >
         <div className="text-center my-5" style={{ fontWeight: "bold" }}>
-          Sign Up
+          Login
         </div>
         <form onSubmit={handleFormSubmit}>
           <div className="mb-3">
@@ -88,7 +86,7 @@ const SignUpForm = () => {
               Password
             </label>
             <input
-              type="text"
+              type="password"
               className="form-control"
               id="password"
               name="password"
@@ -97,33 +95,19 @@ const SignUpForm = () => {
               required
             />
           </div>
-          <div className="mb-3">
-            <label htmlFor="confirmPassword" className="form-label">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              className="form-control"
-              id="confirmPassword"
-              name="confirmPassword"
-              onChange={changeHandler}
-              value={formData.confirmPassword}
-              required
-            />
-          </div>
           <div className="d-flex justify-content-center">
             <button type="submit" className="btn btn-primary ">
-              SignUp
+              Login
             </button>
           </div>
         </form>
         <p>
-          Already have and account ?{" "}
+          New User ?{" "}
           <button
             className="btn btn-warning"
-            onClick={() => setIsRegister(false)}
+            onClick={() => setIsRegister(true)}
           >
-            Login
+            Register
           </button>{" "}
         </p>
       </div>
@@ -131,4 +115,4 @@ const SignUpForm = () => {
   );
 };
 
-export default SignUpForm;
+export default LoginForm;
