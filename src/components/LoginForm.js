@@ -39,7 +39,7 @@ const LoginForm = () => {
           localStorage.setItem("token", tokenId);
           alert("Logged In");
           setIsLoggedIn(true);
-          navigate("/profile");
+          navigate("/home");
         });
       } else {
         return res.json().then((data) => {
