@@ -3,6 +3,18 @@ import UpdateProfile from "./UpdateProfile";
 
 const Home = () => {
   const [updateProfile, setUpdateProfile] = useState(false);
+  const [profileComplete, setProfileComplete] = useState(localStorage.getItem('profileCompleted'));
+
+  
+
+
+  // useEffect(() => {
+  //   const profileStatus = localStorage.getItem("profileCompleted");
+  //   console.log("Checking profile status");
+  //   if (profileStatus) {
+  //     setProfileComplete(true);
+  //   }
+  // }, []);
 
   return (
     <>
@@ -25,19 +37,21 @@ const Home = () => {
               padding: "4px",
             }}
           >
-            Your Profile is incomplete.{" "}
+            {profileComplete
+              ? "Update Your Profile "
+              : "Your Profile is incomplete "}
             <span
               onClick={() => setUpdateProfile(true)}
-              style={{ color: "blue" }}
+              style={{ color: "blue", cursor: "pointer" }}
             >
-              Complete Now
+             {profileComplete?"Update Now":"Complete Now"}
             </span>
           </p>
         </div>
       </div>
       <hr></hr>
       {updateProfile && (
-        <UpdateProfile onCancel={() => setUpdateProfile(false)} />
+        <UpdateProfile onCancel={() => setUpdateProfile(false)} onProfileUpdate={()=>setProfileComplete(true)} />
       )}
     </>
   );

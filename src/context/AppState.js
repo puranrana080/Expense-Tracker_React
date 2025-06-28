@@ -7,7 +7,12 @@ const AppState = (props) => {
 
   return (
     <AppContext.Provider
-      value={{ isRegister, setIsRegister, isLoggedIn, setIsLoggedIn }}
+      value={{
+        isRegister,
+        setIsRegister,
+        isLoggedIn,
+        setIsLoggedIn,
+      }}
     >
       {props.children}
     </AppContext.Provider>

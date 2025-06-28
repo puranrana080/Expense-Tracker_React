@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const UpdateProfile = (props) => {
@@ -7,6 +7,47 @@ const UpdateProfile = (props) => {
     fullName: "",
     profileImageUrl: "",
   });
+  const idToken = localStorage.getItem("token");
+
+  //fetching existing user data
+  useEffect(() => {
+    fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${process.env.REACT_APP_FIREBASE_API_KEY}`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          idToken: idToken,
+        }),
+        headers: { "Content-Type": "application/json" },
+      }
+    ).then((res) => {
+      if (res.ok) {
+        return res.json().then((data) => {
+          console.log(data.users[0]);
+          let user = data.users[0];
+          if (user?.displayName || user?.photoUrl) {
+            localStorage.setItem("profileCompleted", true);
+            props.onProfileUpdate();
+            setUpdateData({
+              fullName: user.displayName || "",
+              profileImageUrl: user.photoUrl || "",
+            });
+          }
+        });
+      } else {
+        return res.json().then((data) => {
+          let errorMsg = "Error in fetcing user data";
+          if (data) {
+            errorMsg = data?.error?.message;
+          }
+          alert(errorMsg);
+        });
+      }
+    });
+
+    let profileUpdated = localStorage.getItem("profileCompleted");
+    if (profileUpdated) props.onProfileUpdate();
+  }, [idToken, props]);
 
   const changeHandler = (e) => {
     setUpdateData((prev) => {
@@ -14,10 +55,9 @@ const UpdateProfile = (props) => {
     });
   };
   console.log("update", updateData);
-
+  //Updating user Profile Data
   const handleSubmit = (e) => {
     e.preventDefault();
-    const idToken = localStorage.getItem("token");
 
     fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:update?key=${process.env.REACT_APP_FIREBASE_API_KEY}`,
@@ -36,6 +76,7 @@ const UpdateProfile = (props) => {
         return res.json().then((data) => {
           console.log("Updated", data);
           alert("Profile Updated");
+          localStorage.setItem("profileCompleted", true);
           navigate("/home");
         });
       } else {
