@@ -35,6 +35,7 @@ const LoginForm = () => {
     ).then((res) => {
       if (res.ok) {
         return res.json().then((data) => {
+          console.log("Data when user logged in ", data);
           let tokenId = data.idToken;
           localStorage.setItem("token", tokenId);
           alert("Logged In");
@@ -104,7 +105,7 @@ const LoginForm = () => {
         <p>
           New User ?{" "}
           <button
-            className="btn btn-warning"
+            className="btn btn-warning btn-sm"
             onClick={() => setIsRegister(true)}
           >
             Register

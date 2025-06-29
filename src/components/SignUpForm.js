@@ -24,7 +24,6 @@ const SignUpForm = () => {
     if (formData.password !== formData.confirmPassword) {
       return alert("Password not matching");
     }
-    console.log("sakdjhb", process.env.REACT_APP_FIREBASE_API_KEY);
 
     fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${process.env.REACT_APP_FIREBASE_API_KEY}`,
@@ -120,7 +119,7 @@ const SignUpForm = () => {
         <p>
           Already have and account ?{" "}
           <button
-            className="btn btn-warning"
+            className="btn btn-warning btn-sm"
             onClick={() => setIsRegister(false)}
           >
             Login

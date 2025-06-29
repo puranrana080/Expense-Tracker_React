@@ -7,6 +7,7 @@ const UpdateProfile = (props) => {
     fullName: "",
     profileImageUrl: "",
   });
+  const [emailVerified, setEmailVerified] = useState(false);
   const idToken = localStorage.getItem("token");
 
   //fetching existing user data
@@ -24,6 +25,7 @@ const UpdateProfile = (props) => {
       if (res.ok) {
         return res.json().then((data) => {
           console.log(data.users[0]);
+          if (data.users[0].emailVerified) setEmailVerified(true);
           let user = data.users[0];
           if (user?.displayName || user?.photoUrl) {
             localStorage.setItem("profileCompleted", true);
@@ -54,6 +56,37 @@ const UpdateProfile = (props) => {
       return { ...prev, [e.target.name]: e.target.value };
     });
   };
+
+  const handleEmailVerification = () => {
+    fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${process.env.REACT_APP_FIREBASE_API_KEY}`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          requestType: "VERIFY_EMAIL",
+          idToken: idToken,
+        }),
+        headers: { "Content-Type": "application/json" },
+      }
+    ).then((res) => {
+      if (res.ok) {
+        return res.json().then((data) => {
+          console.log("email sent", data);
+          alert("Verification email sent");
+          props.onCancel();
+          navigate("/home");
+        });
+      } else {
+        return res.json().then((data) => {
+          let errorMsg = "Email not sent";
+          if (data) {
+            errorMsg = data?.error?.message;
+          }
+          alert(errorMsg);
+        });
+      }
+    });
+  };
   console.log("update", updateData);
   //Updating user Profile Data
   const handleSubmit = (e) => {
@@ -77,6 +110,7 @@ const UpdateProfile = (props) => {
           console.log("Updated", data);
           alert("Profile Updated");
           localStorage.setItem("profileCompleted", true);
+          props.onCancel();
           navigate("/home");
         });
       } else {
@@ -92,92 +126,108 @@ const UpdateProfile = (props) => {
   };
 
   return (
-    <div
-      style={{
-        width: "70%",
-        margin: "2rem auto",
-        backgroundColor: "pink",
-        borderRadius: "10px",
-      }}
-    >
+    <>
+      <h4 className="text-center">
+        <span
+          style={{ color: "blue", cursor: "pointer" }}
+          onClick={() => {
+            if (!emailVerified) handleEmailVerification();
+          }}
+        >
+          {emailVerified ? "Your email is verified" : "Verify your email"}
+        </span>
+      </h4>
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          margin: "auto",
-          padding: "1rem",
+          width: "70%",
+          margin: "2rem auto",
+          backgroundColor: "pink",
+          borderRadius: "10px",
         }}
-      >
-        <div>
-          <h2>Contact Details</h2>
-        </div>
-        <div>
-          <button
-            className="btn btn-danger btn-sm"
-            onClick={() => props.onCancel()}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-      <form
-        onSubmit={handleSubmit}
-        style={{ padding: "1rem", margin: "2rem auto" }}
       >
         <div
           style={{
             display: "flex",
-            gap: "1rem",
-            marginBottom: "1rem",
+            justifyContent: "space-between",
+            alignItems: "center",
+            margin: "auto",
+            padding: "1rem",
           }}
         >
-          {/* Full Name */}
-          <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
-            <span role="img" aria-label="user" style={{ marginRight: "8px" }}>
-              👤
-            </span>
-            <label
-              htmlFor="fullName"
-              style={{ marginRight: "8px", minWidth: "80px" }}
-            >
-              Full Name:
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              name="fullName"
-              value={updateData.fullName}
-              onChange={changeHandler}
-              style={{ flex: 1 }}
-            />
+          <div>
+            <h2>Contact Details</h2>
           </div>
-
-          {/* Profile Photo URL */}
-          <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
-            <span role="img" aria-label="photo" style={{ marginRight: "8px" }}>
-              🌐
-            </span>
-            <label
-              htmlFor="photoUrl"
-              style={{ marginRight: "8px", minWidth: "100px" }}
+          <div>
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() => props.onCancel()}
             >
-              Profile Photo URL:
-            </label>
-            <input
-              id="photoUrl"
-              type="text"
-              name="profileImageUrl"
-              value={updateData.profileImageUrl}
-              onChange={changeHandler}
-              style={{ flex: 1 }}
-            />
+              Cancel
+            </button>
           </div>
         </div>
+        <form
+          onSubmit={handleSubmit}
+          style={{ padding: "1rem", margin: "2rem auto" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              marginBottom: "1rem",
+            }}
+          >
+            {/* Full Name */}
+            <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+              <span role="img" aria-label="user" style={{ marginRight: "8px" }}>
+                👤
+              </span>
+              <label
+                htmlFor="fullName"
+                style={{ marginRight: "8px", minWidth: "80px" }}
+              >
+                Full Name:
+              </label>
+              <input
+                id="fullName"
+                type="text"
+                name="fullName"
+                value={updateData.fullName}
+                onChange={changeHandler}
+                style={{ flex: 1 }}
+              />
+            </div>
 
-        <button className="btn btn-success btn-sm">Update</button>
-      </form>
-    </div>
+            {/* Profile Photo URL */}
+            <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+              <span
+                role="img"
+                aria-label="photo"
+                style={{ marginRight: "8px" }}
+              >
+                🌐
+              </span>
+              <label
+                htmlFor="photoUrl"
+                style={{ marginRight: "8px", minWidth: "100px" }}
+              >
+                Profile Photo URL:
+              </label>
+              <input
+                id="photoUrl"
+                type="text"
+                name="profileImageUrl"
+                value={updateData.profileImageUrl}
+                onChange={changeHandler}
+                style={{ flex: 1 }}
+              />
+            </div>
+          </div>
+
+          <button className="btn btn-success btn-sm">Update</button>
+        </form>
+      </div>
+    </>
   );
 };
 
