@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 const LoginForm = () => {
   const { setIsRegister, setIsLoggedIn } = useContext(AppContext);
   const navigate = useNavigate();
+  const [passwordForgot, setPasswordForgot] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -15,44 +16,77 @@ const LoginForm = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    if (formData.email === "" || formData.password === "") {
-      return alert("All fields required");
-    }
 
-    fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.REACT_APP_FIREBASE_API_KEY}`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          returnSecureToken: true,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+    if (!passwordForgot) {
+      if (formData.email === "" || formData.password === "") {
+        return alert("All fields required");
       }
-    ).then((res) => {
-      if (res.ok) {
-        return res.json().then((data) => {
-          console.log("Data when user logged in ", data);
-          let tokenId = data.idToken;
-          localStorage.setItem("token", tokenId);
-          alert("Logged In");
-          setIsLoggedIn(true);
-          navigate("/home");
-        });
-      } else {
-        return res.json().then((data) => {
-          let errorMsg = "Wrong Credential";
-          if (data) {
-            errorMsg = data?.error?.message;
-          }
-          alert(errorMsg);
-        });
-      }
-    });
+
+      fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.REACT_APP_FIREBASE_API_KEY}`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            returnSecureToken: true,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      ).then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            console.log("Data when user logged in ", data);
+            let tokenId = data.idToken;
+            localStorage.setItem("token", tokenId);
+            alert("Logged In");
+            setIsLoggedIn(true);
+            navigate("/home");
+          });
+        } else {
+          return res.json().then((data) => {
+            let errorMsg = "Wrong Credential";
+            if (data) {
+              errorMsg = data?.error?.message;
+            }
+            alert(errorMsg);
+          });
+        }
+      });
+    } else {
+      fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${process.env.REACT_APP_FIREBASE_API_KEY}`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            requestType: "PASSWORD_RESET",
+            email: formData.email,
+          }),
+          headers: { "Content-Type": "application/json" },
+        }
+      ).then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            console.log("password reset for email ", data);
+            alert("Password Reset Link Send to email");
+            setFormData({ email: "", password: "" });
+            navigate("/");
+          });
+        } else {
+          return res.json().then((data) => {
+            let errorMsg = "Password reset email not sent";
+            if (data) {
+              errorMsg = data?.error?.message;
+            }
+            alert(errorMsg);
+          });
+        }
+      });
+    }
   };
+  console.log("form data", formData);
 
   return (
     <>
@@ -65,12 +99,14 @@ const LoginForm = () => {
         }}
       >
         <div className="text-center my-5" style={{ fontWeight: "bold" }}>
-          Login
+          {!passwordForgot ? "Login" : "Reset Password"}
         </div>
         <form onSubmit={handleFormSubmit}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label">
-              Email address
+              {!passwordForgot
+                ? "Email address"
+                : "Enter the email with which you have registered."}
             </label>
             <input
               type="email"
@@ -82,23 +118,37 @@ const LoginForm = () => {
               required
             />
           </div>
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label">
-              Password
-            </label>
-            <input
-              type="password"
-              className="form-control"
-              id="password"
-              name="password"
-              onChange={changeHandler}
-              value={formData.password}
-              required
-            />
+
+          {!passwordForgot && (
+            <>
+              <div className="mb-3">
+                <label htmlFor="password" className="form-label">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  className="form-control"
+                  id="password"
+                  name="password"
+                  onChange={changeHandler}
+                  value={formData.password}
+                  required
+                />
+              </div>
+            </>
+          )}
+
+          <div className="text-center my-2" style={{ color: "red" }}>
+            <span
+              style={{ cursor: "pointer" }}
+              onClick={() => setPasswordForgot(!passwordForgot)}
+            >
+              {!passwordForgot ? "Forgot Password?" : "Already a user?Login"}
+            </span>
           </div>
           <div className="d-flex justify-content-center">
             <button type="submit" className="btn btn-primary ">
-              Login
+              {!passwordForgot ? "Login" : "Send Reset Link"}
             </button>
           </div>
         </form>
