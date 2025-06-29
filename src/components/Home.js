@@ -1,20 +1,24 @@
 import React, { useState } from "react";
 import UpdateProfile from "./UpdateProfile";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [updateProfile, setUpdateProfile] = useState(false);
-  const [profileComplete, setProfileComplete] = useState(localStorage.getItem('profileCompleted'));
+  const [profileComplete, setProfileComplete] = useState(
+    localStorage.getItem("profileCompleted")
+  );
+  const navigate=useNavigate()
 
+  const handleLogout=()=>{
+    localStorage.removeItem('token')
+    localStorage.removeItem('profileCompleted')
+    navigate('/')
+    
   
 
+  }
 
-  // useEffect(() => {
-  //   const profileStatus = localStorage.getItem("profileCompleted");
-  //   console.log("Checking profile status");
-  //   if (profileStatus) {
-  //     setProfileComplete(true);
-  //   }
-  // }, []);
+
 
   return (
     <>
@@ -29,8 +33,13 @@ const Home = () => {
         <div>
           <p>Welcome to Expense Tracker</p>
         </div>
-        <div>
-          <p
+        <div style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "1rem",
+    }}>
+          
+          <div
             style={{
               backgroundColor: "pink",
               borderRadius: "10px",
@@ -44,14 +53,18 @@ const Home = () => {
               onClick={() => setUpdateProfile(true)}
               style={{ color: "blue", cursor: "pointer" }}
             >
-             {profileComplete?"Update Now":"Complete Now"}
+              {profileComplete ? "Update Now" : "Complete Now"}
             </span>
-          </p>
+          </div>
+          <button className="btn btn-danger btn-sm" onClick={handleLogout} >Logout</button>
         </div>
       </div>
       <hr></hr>
       {updateProfile && (
-        <UpdateProfile onCancel={() => setUpdateProfile(false)} onProfileUpdate={()=>setProfileComplete(true)} />
+        <UpdateProfile
+          onCancel={() => setUpdateProfile(false)}
+          onProfileUpdate={() => setProfileComplete(true)}
+        />
       )}
     </>
   );
