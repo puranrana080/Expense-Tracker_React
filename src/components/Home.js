@@ -1,24 +1,20 @@
 import React, { useState } from "react";
 import UpdateProfile from "./UpdateProfile";
 import { useNavigate } from "react-router-dom";
+import NewExpense from "./NewExpense";
 
 const Home = () => {
   const [updateProfile, setUpdateProfile] = useState(false);
   const [profileComplete, setProfileComplete] = useState(
     localStorage.getItem("profileCompleted")
   );
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
-  const handleLogout=()=>{
-    localStorage.removeItem('token')
-    localStorage.removeItem('profileCompleted')
-    navigate('/')
-    
-  
-
-  }
-
-
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("profileCompleted");
+    navigate("/");
+  };
 
   return (
     <>
@@ -33,12 +29,13 @@ const Home = () => {
         <div>
           <p>Welcome to Expense Tracker</p>
         </div>
-        <div style={{
-      display: "flex",
-      alignItems: "center",
-      gap: "1rem",
-    }}>
-          
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+          }}
+        >
           <div
             style={{
               backgroundColor: "pink",
@@ -56,7 +53,9 @@ const Home = () => {
               {profileComplete ? "Update Now" : "Complete Now"}
             </span>
           </div>
-          <button className="btn btn-danger btn-sm" onClick={handleLogout} >Logout</button>
+          <button className="btn btn-danger btn-sm" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </div>
       <hr></hr>
@@ -66,6 +65,7 @@ const Home = () => {
           onProfileUpdate={() => setProfileComplete(true)}
         />
       )}
+      {!updateProfile && <NewExpense />}
     </>
   );
 };
