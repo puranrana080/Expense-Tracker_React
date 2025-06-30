@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import AppContext from "../context/AppContext";
 
 const ExpenseForm = (props) => {
+  const {setExpenseData} = useContext(AppContext)
   const [userInput, setUserInput] = useState({
     enteredAmount: "",
     enteredDescription: "",
@@ -11,10 +13,55 @@ const ExpenseForm = (props) => {
       return { ...prev, [e.target.name]: e.target.value };
     });
   };
-  console.log(userInput);
+
+  const handleAddExpense = (e) => {
+    e.preventDefault();
+    fetch(
+      `https://expensetracker-534d7-default-rtdb.firebaseio.com/expenses.json`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          amount: userInput.enteredAmount,
+          description: userInput.enteredDescription,
+          category: userInput.enteredCategory,
+        }),
+        headers: { "Content-Type": "application/json" },
+      }
+    ).then((res) => {
+      if (res.ok) {
+        return res.json().then((data) => {
+          const generatedId = data.name;
+          const newExpense = {
+            amount: userInput.enteredAmount,
+            description: userInput.enteredDescription,
+            category: userInput.enteredCategory,
+          };
+          setExpenseData((prev) => ({
+            ...prev,
+            [generatedId]: newExpense,
+          }));
+          alert("Expense Added");
+          props.onAddClick();
+          setUserInput({
+            enteredAmount: "",
+            enteredDescription: "",
+            enteredCategory: "",
+          });
+        });
+      } else {
+        return res.json().then((data) => {
+          let errorMsg = " Expense not added";
+          if (data) {
+            errorMsg = data?.error?.message;
+          }
+          alert(errorMsg);
+        });
+      }
+    });
+  };
   return (
     <div>
-      <form>
+      <form onSubmit={handleAddExpense}>
         <div className="expense__controls">
           <div className="new-expense__control">
             <label htmlFor="amount">Amount</label>
@@ -47,14 +94,14 @@ const ExpenseForm = (props) => {
               <option value="">--Select Category--</option>
               <option value="food">Food</option>
               <option value="travel">Travel</option>
-              <option value="shopping">Groceries</option>
-              <option value="entertainment">Shopping</option>
-              <option value="entertainment">Subscriptions</option>
-              <option value="entertainment">Insurance</option>
-              <option value="entertainment">Investments</option>
-              <option value="entertainment">Salary</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="entertainment">Other</option>
+              <option value="Groceries">Groceries</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Subscriptions">Subscriptions</option>
+              <option value="Insurance">Insurance</option>
+              <option value="Investments">Investments</option>
+              <option value="Salary">Salary</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Other">Other</option>
             </select>
           </div>
         </div>
@@ -67,6 +114,7 @@ const ExpenseForm = (props) => {
           </button>
         </div>
       </form>
+      <hr></hr>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import AppContext from "./AppContext";
 const AppState = (props) => {
   const [isRegister, setIsRegister] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [expenseData,setExpenseData] = useState({})
 
   return (
     <AppContext.Provider
@@ -12,6 +13,8 @@ const AppState = (props) => {
         setIsRegister,
         isLoggedIn,
         setIsLoggedIn,
+        expenseData,
+        setExpenseData
       }}
     >
       {props.children}

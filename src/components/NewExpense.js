@@ -15,14 +15,14 @@ const NewExpense = () => {
             Add Expense
           </button>
         )}
-        {check && <ExpenseForm onCancelClick={() => setCheck(false)} />}
+        {check && <ExpenseForm onCancelClick={() => setCheck(false)} onAddClick={()=>setCheck(false)}/>}
       </div>
       <div
         className="text-center"
         style={{
           width: "70%",
           margin: "1rem auto",
-          border: "1px solid yellow",
+          
         }}
       >
         <Expenses />
