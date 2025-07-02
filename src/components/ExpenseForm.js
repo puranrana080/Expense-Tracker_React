@@ -1,13 +1,25 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import AppContext from "../context/AppContext";
 
 const ExpenseForm = (props) => {
-  const {setExpenseData} = useContext(AppContext)
+  const { setExpenseData, isEditing, editData } = useContext(AppContext);
   const [userInput, setUserInput] = useState({
     enteredAmount: "",
     enteredDescription: "",
     enteredCategory: "",
   });
+
+  useEffect(() => {
+    if (isEditing && editData) {
+      setUserInput({
+        enteredAmount: editData.enteredAmount || "",
+        enteredDescription: editData.enteredDescription || "",
+        enteredCategory: editData.enteredCategory || "",
+      });
+    }
+  }, [editData, isEditing]);
+
+  const userId = localStorage.getItem("userId");
   const changeHandler = (e) => {
     setUserInput((prev) => {
       return { ...prev, [e.target.name]: e.target.value };
@@ -16,48 +28,98 @@ const ExpenseForm = (props) => {
 
   const handleAddExpense = (e) => {
     e.preventDefault();
-    fetch(
-      `https://expensetracker-534d7-default-rtdb.firebaseio.com/expenses.json`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          amount: userInput.enteredAmount,
-          description: userInput.enteredDescription,
-          category: userInput.enteredCategory,
-        }),
-        headers: { "Content-Type": "application/json" },
-      }
-    ).then((res) => {
-      if (res.ok) {
-        return res.json().then((data) => {
-          const generatedId = data.name;
-          const newExpense = {
+    //Adding New Expense
+    if (!isEditing) {
+      fetch(
+        `https://expensetracker-534d7-default-rtdb.firebaseio.com/expenses/${userId}.json`,
+        {
+          method: "POST",
+          body: JSON.stringify({
             amount: userInput.enteredAmount,
             description: userInput.enteredDescription,
             category: userInput.enteredCategory,
-          };
-          setExpenseData((prev) => ({
-            ...prev,
-            [generatedId]: newExpense,
-          }));
-          alert("Expense Added");
-          props.onAddClick();
-          setUserInput({
-            enteredAmount: "",
-            enteredDescription: "",
-            enteredCategory: "",
+          }),
+          headers: { "Content-Type": "application/json" },
+        }
+      ).then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            const generatedId = data.name;
+            const newExpense = {
+              amount: userInput.enteredAmount,
+              description: userInput.enteredDescription,
+              category: userInput.enteredCategory,
+            };
+            setExpenseData((prev) => ({
+              ...prev,
+              [generatedId]: newExpense,
+            }));
+            alert("Expense Added");
+            props.onAddClick();
+            setUserInput({
+              enteredAmount: "",
+              enteredDescription: "",
+              enteredCategory: "",
+            });
           });
-        });
-      } else {
-        return res.json().then((data) => {
-          let errorMsg = " Expense not added";
-          if (data) {
-            errorMsg = data?.error?.message;
-          }
-          alert(errorMsg);
-        });
-      }
-    });
+        } else {
+          return res.json().then((data) => {
+            let errorMsg = " Expense not added";
+            if (data) {
+              errorMsg = data?.error?.message;
+            }
+            alert(errorMsg);
+          });
+        }
+      });
+    }
+    // Editing Existing Expense
+    else {
+      fetch(
+        `https://expensetracker-534d7-default-rtdb.firebaseio.com/expenses/${userId}/${editData.id}.json`,
+        {
+          method: "PUT",
+          body: JSON.stringify({
+            amount: userInput.enteredAmount,
+            description: userInput.enteredDescription,
+            category: userInput.enteredCategory,
+          }),
+          headers: { "Content-Type": "application.json" },
+        }
+      ).then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            // const generatedId = data.name;
+            console.log(editData.id);
+            console.log("This is edit res", data);
+            const editedExpense = {
+              amount: userInput.enteredAmount,
+              description: userInput.enteredDescription,
+              category: userInput.enteredCategory,
+            };
+            setExpenseData((prev) => ({
+              ...prev,
+              [editData.id]: editedExpense,
+            }));
+            alert("Expense Edited");
+            props.onAddClick();
+            setUserInput({
+              enteredAmount: "",
+              enteredDescription: "",
+              enteredCategory: "",
+            });
+          });
+        } else {
+          return res.json().then((data) => {
+            let errorMsg = " Expense not edited";
+            if (data) {
+              errorMsg = data?.error?.message;
+            }
+            alert(errorMsg);
+          });
+        }
+      });
+    }
   };
   return (
     <div>
@@ -110,7 +172,7 @@ const ExpenseForm = (props) => {
             Cancel
           </button>
           <button className="btn btn-warning" type="submit">
-            Add Expense
+            {!isEditing ? "Add Expense" : "Edit Expense"}
           </button>
         </div>
       </form>

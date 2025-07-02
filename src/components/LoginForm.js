@@ -40,7 +40,9 @@ const LoginForm = () => {
           return res.json().then((data) => {
             console.log("Data when user logged in ", data);
             let tokenId = data.idToken;
+            const userId = data.localId;
             localStorage.setItem("token", tokenId);
+            localStorage.setItem("userId", userId);
             alert("Logged In");
             setIsLoggedIn(true);
             navigate("/home");

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import ExpenseForm from "./ExpenseForm";
 import Expenses from "./Expenses";
+import AppContext from "../context/AppContext";
 
 const NewExpense = () => {
-  const [check, setCheck] = useState(false);
+  const { check, setCheck, setIsEditing } = useContext(AppContext);
   return (
     <>
       <div
@@ -15,14 +16,21 @@ const NewExpense = () => {
             Add Expense
           </button>
         )}
-        {check && <ExpenseForm onCancelClick={() => setCheck(false)} onAddClick={()=>setCheck(false)}/>}
+        {check && (
+          <ExpenseForm
+            onCancelClick={() => {
+              setCheck(false);
+              setIsEditing(false);
+            }}
+            onAddClick={() => setCheck(false)}
+          />
+        )}
       </div>
       <div
         className="text-center"
         style={{
           width: "70%",
           margin: "1rem auto",
-          
         }}
       >
         <Expenses />
