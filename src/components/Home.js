@@ -12,7 +12,7 @@ const Home = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("userId");
+    localStorage.removeItem('profileCompleted')
     navigate("/");
   };
 

@@ -2,29 +2,16 @@ import React, { useState } from "react";
 import AppContext from "./AppContext";
 
 const AppState = (props) => {
-  const [isRegister, setIsRegister] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [expenseData, setExpenseData] = useState({});
-  const [check, setCheck] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({});
-  const userId = localStorage.getItem("userId");
+  const [isRegister, setIsRegister] = useState(true);//jbj
+  const [isLoggedIn, setIsLoggedIn] = useState(false);//sfs
+  const [expenseData, setExpenseData] = useState({});//s
+  const [check, setCheck] = useState(false);//ksd
+  const [isEditing, setIsEditing] = useState(false);//sds
+  const [editData, setEditData] = useState({});//hb
+  const [userId,setUserId]=useState(null)
+  // const userId = localStorage.getItem("userId");//h
 
-  const fetchExpenses = () => {
-    fetch(
-      `https://expensetracker-534d7-default-rtdb.firebaseio.com/expenses/${userId}.json`,
-      {
-        method: "GET",
-      }
-    ).then((res) => {
-      if (res.ok) {
-        return res.json().then((data) => {
-          setExpenseData(data);
-          console.log("All the data ", data);
-        });
-      }
-    });
-  };
+
 
   return (
     <AppContext.Provider
@@ -35,13 +22,14 @@ const AppState = (props) => {
         setIsLoggedIn,
         expenseData,
         setExpenseData,
-        fetchExpenses,
         check,
         setCheck,
         isEditing,
         setIsEditing,
         editData,
         setEditData,
+        userId,
+        setUserId
       }}
     >
       {props.children}

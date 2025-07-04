@@ -1,9 +1,12 @@
 import React, { useContext, useState } from "react";
 import AppContext from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { authActions } from "../store/auth";
 
 const LoginForm = () => {
-  const { setIsRegister, setIsLoggedIn } = useContext(AppContext);
+  const dispatch = useDispatch()
+  // const {  setIsLoggedIn} = useContext(AppContext);
   const navigate = useNavigate();
   const [passwordForgot, setPasswordForgot] = useState(false);
   const [formData, setFormData] = useState({
@@ -40,11 +43,13 @@ const LoginForm = () => {
           return res.json().then((data) => {
             console.log("Data when user logged in ", data);
             let tokenId = data.idToken;
-            const userId = data.localId;
+            const currentUserId = data.localId;
             localStorage.setItem("token", tokenId);
-            localStorage.setItem("userId", userId);
+            dispatch(authActions.loggedUserId(currentUserId))
+            // setUserId(currentUserId)
             alert("Logged In");
-            setIsLoggedIn(true);
+            dispatch(authActions.login())
+            // setIsLoggedIn(true);
             navigate("/home");
           });
         } else {
@@ -158,7 +163,8 @@ const LoginForm = () => {
           New User ?{" "}
           <button
             className="btn btn-warning btn-sm"
-            onClick={() => setIsRegister(true)}
+            onClick={() => dispatch(authActions.register())}
+            
           >
             Register
           </button>{" "}

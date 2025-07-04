@@ -1,8 +1,12 @@
 import React, { useContext, useState } from "react";
-import AppContext from "../context/AppContext";
+import {useDispatch} from "react-redux"
+import { authActions } from "../store/auth";
+// import AppContext from "../context/AppContext";
 
 const SignUpForm = () => {
-  const { setIsRegister } = useContext(AppContext);
+  const dispatch = useDispatch()
+  
+  // const { setIsRegister } = useContext(AppContext);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -120,7 +124,7 @@ const SignUpForm = () => {
           Already have and account ?{" "}
           <button
             className="btn btn-warning btn-sm"
-            onClick={() => setIsRegister(false)}
+            onClick={() => dispatch(authActions.loginForm())}
           >
             Login
           </button>{" "}

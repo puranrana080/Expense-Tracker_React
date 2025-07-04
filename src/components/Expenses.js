@@ -1,11 +1,32 @@
 import React, { useContext, useEffect } from "react";
 import AppContext from "../context/AppContext";
+import { useDispatch, useSelector } from "react-redux";
+import { expenseActions } from "../store/expense";
 
 const Expenses = () => {
-  const { expenseData, fetchExpenses, setCheck, setIsEditing, setEditData } =
-    useContext(AppContext);
-  const userId = localStorage.getItem("userId");
+  const dispatch = useDispatch()
+  const expenseData = useSelector(state=>state.expense.expenseData)
+  const userId = useSelector(state=>state.auth.userId)
+  // const { expenseData, setCheck, setIsEditing, setEditData, setExpenseData ,userId} =
+    // useContext(AppContext);
   console.log("new data", expenseData);
+
+  const fetchExpenses = () => {
+    fetch(
+      `https://expensetracker-534d7-default-rtdb.firebaseio.com/expenses/${userId}.json`,
+      {
+        method: "GET",
+      }
+    ).then((res) => {
+      if (res.ok) {
+        return res.json().then((data) => {
+          // setExpenseData(data);
+          dispatch(expenseActions.setExpense(data))
+          console.log("All the data ", data);
+        });
+      }
+    });
+  };
 
   useEffect(() => {
     fetchExpenses();
@@ -24,14 +45,22 @@ const Expenses = () => {
 
   const handleEditExpense = async (id) => {
     const expenseToEdit = expenseData[id];
-    setEditData({
+    // setEditData({
+    //   id: id,
+    //   enteredAmount: expenseToEdit.amount,
+    //   enteredDescription: expenseToEdit.description,
+    //   enteredCategory: expenseToEdit.category,
+    // });
+    dispatch(expenseActions.setEditData({
       id: id,
       enteredAmount: expenseToEdit.amount,
       enteredDescription: expenseToEdit.description,
       enteredCategory: expenseToEdit.category,
-    });
-    setIsEditing(true);
-    setCheck(true);
+    }))
+    // setIsEditing(true);
+    dispatch(expenseActions.toggleEditing())
+    // setCheck(true);
+    dispatch(expenseActions.toggleFormCheck())
   };
 
   return (

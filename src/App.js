@@ -4,9 +4,12 @@ import LoginForm from "./components/LoginForm";
 import { Route, Routes } from "react-router-dom";
 import AppContext from "./context/AppContext";
 import Home from "./components/Home";
+import { useSelector } from "react-redux";
 
 const App = () => {
-  const { isRegister } = useContext(AppContext);
+  const isRegister = useSelector(state=>state.auth.isRegister)
+  const isLoggedIn = useSelector(state=>state.auth.isLoggedIn)
+  // const { isLoggedIn } = useContext(AppContext);
 
   return (
     <>
@@ -15,7 +18,7 @@ const App = () => {
           path="/"
           element={isRegister ? <SignUpForm /> : <LoginForm />}
         ></Route>
-        <Route path="/home" element={<Home />}></Route>
+        <Route path="/home" element={isLoggedIn? <Home />:<LoginForm/>}></Route>
       </Routes>
     </>
   );

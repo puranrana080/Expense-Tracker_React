@@ -1,8 +1,15 @@
 import React, { useContext, useState, useEffect } from "react";
 import AppContext from "../context/AppContext";
+import { useDispatch, useSelector } from "react-redux";
+import { expenseActions } from "../store/expense";
 
 const ExpenseForm = (props) => {
-  const { setExpenseData, isEditing, editData } = useContext(AppContext);
+  const dispatch = useDispatch()
+  const isEditing =useSelector(state=>state.expense.isEditing)
+  const userId = useSelector(state=>state.auth.userId)
+  const editData = useSelector(state=>state.expense.editData)
+
+  // const { setExpenseData} = useContext(AppContext);
   const [userInput, setUserInput] = useState({
     enteredAmount: "",
     enteredDescription: "",
@@ -19,7 +26,7 @@ const ExpenseForm = (props) => {
     }
   }, [editData, isEditing]);
 
-  const userId = localStorage.getItem("userId");
+ 
   const changeHandler = (e) => {
     setUserInput((prev) => {
       return { ...prev, [e.target.name]: e.target.value };
@@ -50,10 +57,11 @@ const ExpenseForm = (props) => {
               description: userInput.enteredDescription,
               category: userInput.enteredCategory,
             };
-            setExpenseData((prev) => ({
-              ...prev,
-              [generatedId]: newExpense,
-            }));
+            // setExpenseData((prev) => ({
+            //   ...prev,
+            //   [generatedId]: newExpense,
+            // }));
+            dispatch(expenseActions.addExpense({id:generatedId,newExpense:newExpense}))
             alert("Expense Added");
             props.onAddClick();
             setUserInput({
@@ -97,10 +105,11 @@ const ExpenseForm = (props) => {
               description: userInput.enteredDescription,
               category: userInput.enteredCategory,
             };
-            setExpenseData((prev) => ({
-              ...prev,
-              [editData.id]: editedExpense,
-            }));
+            // setExpenseData((prev) => ({
+            //   ...prev,
+            //   [editData.id]: editedExpense,
+            // }));
+            dispatch(expenseActions.editExpense({id:editData.id,updatedExpense:editedExpense}))
             alert("Expense Edited");
             props.onAddClick();
             setUserInput({
