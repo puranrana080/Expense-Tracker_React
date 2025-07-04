@@ -1,15 +1,13 @@
-import React, { useContext, useState, useEffect } from "react";
-import AppContext from "../context/AppContext";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { expenseActions } from "../store/expense";
 
 const ExpenseForm = (props) => {
-  const dispatch = useDispatch()
-  const isEditing =useSelector(state=>state.expense.isEditing)
-  const userId = useSelector(state=>state.auth.userId)
-  const editData = useSelector(state=>state.expense.editData)
+  const dispatch = useDispatch();
+  const isEditing = useSelector((state) => state.expense.isEditing);
+  const userId = useSelector((state) => state.auth.userId);
+  const editData = useSelector((state) => state.expense.editData);
 
-  // const { setExpenseData} = useContext(AppContext);
   const [userInput, setUserInput] = useState({
     enteredAmount: "",
     enteredDescription: "",
@@ -26,7 +24,6 @@ const ExpenseForm = (props) => {
     }
   }, [editData, isEditing]);
 
- 
   const changeHandler = (e) => {
     setUserInput((prev) => {
       return { ...prev, [e.target.name]: e.target.value };
@@ -61,7 +58,12 @@ const ExpenseForm = (props) => {
             //   ...prev,
             //   [generatedId]: newExpense,
             // }));
-            dispatch(expenseActions.addExpense({id:generatedId,newExpense:newExpense}))
+            dispatch(
+              expenseActions.addExpense({
+                id: generatedId,
+                newExpense: newExpense,
+              })
+            );
             alert("Expense Added");
             props.onAddClick();
             setUserInput({
@@ -109,7 +111,12 @@ const ExpenseForm = (props) => {
             //   ...prev,
             //   [editData.id]: editedExpense,
             // }));
-            dispatch(expenseActions.editExpense({id:editData.id,updatedExpense:editedExpense}))
+            dispatch(
+              expenseActions.editExpense({
+                id: editData.id,
+                updatedExpense: editedExpense,
+              })
+            );
             alert("Expense Edited");
             props.onAddClick();
             setUserInput({

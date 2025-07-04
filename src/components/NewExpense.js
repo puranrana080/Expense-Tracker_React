@@ -1,14 +1,13 @@
-import React, { useContext } from "react";
+import React from "react";
 import ExpenseForm from "./ExpenseForm";
 import Expenses from "./Expenses";
-import AppContext from "../context/AppContext";
 import { useDispatch, useSelector } from "react-redux";
 import { expenseActions } from "../store/expense";
 
 const NewExpense = () => {
-  const dispatch = useDispatch()
-  const check=useSelector(state=>state.expense.formCheck)
-  const {  setCheck, setIsEditing } = useContext(AppContext);
+  const dispatch = useDispatch();
+  const check = useSelector((state) => state.expense.formCheck);
+
   return (
     <>
       <div
@@ -16,17 +15,19 @@ const NewExpense = () => {
         style={{ width: "50%", margin: "1rem auto" }}
       >
         {!check && (
-          <button className="btn btn-warning " onClick={() => dispatch(expenseActions.toggleFormCheck())}>
+          <button
+            className="btn btn-warning "
+            onClick={() => dispatch(expenseActions.toggleFormCheck())}
+          >
             Add Expense
           </button>
         )}
         {check && (
           <ExpenseForm
             onCancelClick={() => {
-              // setCheck(false);
-              dispatch(expenseActions.toggleFormCheck())
-              // setIsEditing(false);
-              dispatch(expenseActions.toggleEditing())
+              dispatch(expenseActions.toggleFormCheck());
+              dispatch(expenseActions.toggleEditing());
+              dispatch(expenseActions.setEditData())
             }}
             onAddClick={() => dispatch(expenseActions.toggleFormCheck())}
           />

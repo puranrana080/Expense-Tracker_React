@@ -1,12 +1,12 @@
-import React, { useContext, useState } from "react";
-import AppContext from "../context/AppContext";
+import React, { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { authActions } from "../store/auth";
 
 const LoginForm = () => {
-  const dispatch = useDispatch()
-  // const {  setIsLoggedIn} = useContext(AppContext);
+  const dispatch = useDispatch();
+
   const navigate = useNavigate();
   const [passwordForgot, setPasswordForgot] = useState(false);
   const [formData, setFormData] = useState({
@@ -45,11 +45,9 @@ const LoginForm = () => {
             let tokenId = data.idToken;
             const currentUserId = data.localId;
             localStorage.setItem("token", tokenId);
-            dispatch(authActions.loggedUserId(currentUserId))
-            // setUserId(currentUserId)
+            dispatch(authActions.loggedUserId(currentUserId));
             alert("Logged In");
-            dispatch(authActions.login())
-            // setIsLoggedIn(true);
+            dispatch(authActions.login());
             navigate("/home");
           });
         } else {
@@ -164,7 +162,6 @@ const LoginForm = () => {
           <button
             className="btn btn-warning btn-sm"
             onClick={() => dispatch(authActions.register())}
-            
           >
             Register
           </button>{" "}

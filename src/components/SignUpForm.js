@@ -1,12 +1,10 @@
-import React, { useContext, useState } from "react";
-import {useDispatch} from "react-redux"
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { authActions } from "../store/auth";
-// import AppContext from "../context/AppContext";
 
 const SignUpForm = () => {
-  const dispatch = useDispatch()
-  
-  // const { setIsRegister } = useContext(AppContext);
+  const dispatch = useDispatch();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",

@@ -28,7 +28,7 @@ const expenseSlice = createSlice({
         state.expenseData[id]=updatedExpense
     },
     setEditData(state,action){
-        state.editData=action.payload
+        state.editData=action.payload||{}
     }
   },
 });

@@ -1,15 +1,15 @@
-import React, { useContext, useEffect } from "react";
-import AppContext from "../context/AppContext";
+import React, { useEffect } from "react";
+
 import { useDispatch, useSelector } from "react-redux";
 import { expenseActions } from "../store/expense";
 
 const Expenses = () => {
-  const dispatch = useDispatch()
-  const expenseData = useSelector(state=>state.expense.expenseData)
-  const userId = useSelector(state=>state.auth.userId)
-  // const { expenseData, setCheck, setIsEditing, setEditData, setExpenseData ,userId} =
-    // useContext(AppContext);
+  const dispatch = useDispatch();
+  const expenseData = useSelector((state) => state.expense.expenseData);
+  const userId = useSelector((state) => state.auth.userId);
+
   console.log("new data", expenseData);
+  const totalAmount = Object.values(expenseData).reduce((acc,curr)=>acc+curr.amount,0)
 
   const fetchExpenses = () => {
     fetch(
@@ -20,8 +20,7 @@ const Expenses = () => {
     ).then((res) => {
       if (res.ok) {
         return res.json().then((data) => {
-          // setExpenseData(data);
-          dispatch(expenseActions.setExpense(data))
+          dispatch(expenseActions.setExpense(data));
           console.log("All the data ", data);
         });
       }
@@ -30,7 +29,7 @@ const Expenses = () => {
 
   useEffect(() => {
     fetchExpenses();
-  }, []);
+  },[]);
   const handleDeleteExpense = async (id) => {
     const response = await fetch(
       `https://expensetracker-534d7-default-rtdb.firebaseio.com/expenses/${userId}/${id}.json`,
@@ -45,22 +44,18 @@ const Expenses = () => {
 
   const handleEditExpense = async (id) => {
     const expenseToEdit = expenseData[id];
-    // setEditData({
-    //   id: id,
-    //   enteredAmount: expenseToEdit.amount,
-    //   enteredDescription: expenseToEdit.description,
-    //   enteredCategory: expenseToEdit.category,
-    // });
-    dispatch(expenseActions.setEditData({
-      id: id,
-      enteredAmount: expenseToEdit.amount,
-      enteredDescription: expenseToEdit.description,
-      enteredCategory: expenseToEdit.category,
-    }))
-    // setIsEditing(true);
-    dispatch(expenseActions.toggleEditing())
-    // setCheck(true);
-    dispatch(expenseActions.toggleFormCheck())
+    dispatch(
+      expenseActions.setEditData({
+        id: id,
+        enteredAmount: expenseToEdit.amount,
+        enteredDescription: expenseToEdit.description,
+        enteredCategory: expenseToEdit.category,
+      })
+    );
+
+    dispatch(expenseActions.toggleEditing());
+
+    dispatch(expenseActions.toggleFormCheck());
   };
 
   return (
@@ -69,6 +64,7 @@ const Expenses = () => {
         <hr></hr>
         <div>
           <h1>All Expenses</h1>
+         {totalAmount>1000 && <div><button className="btn btn-dark btn-sm">Activate Premium </button></div>} 
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "2px" }}>
           {expenseData ? (

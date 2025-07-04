@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import UpdateProfile from "./UpdateProfile";
 import { useNavigate } from "react-router-dom";
 import NewExpense from "./NewExpense";
+import { useDispatch } from "react-redux";
+import { authActions } from "../store/auth";
 
 const Home = () => {
+  const dispatch = useDispatch();
   const [updateProfile, setUpdateProfile] = useState(false);
   const [profileComplete, setProfileComplete] = useState(
     localStorage.getItem("profileCompleted")
@@ -12,7 +15,8 @@ const Home = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem('profileCompleted')
+    localStorage.removeItem("profileCompleted");
+    dispatch(authActions.loggedUserId(null));
     navigate("/");
   };
 
