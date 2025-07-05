@@ -12,6 +12,7 @@ const App = () => {
   const dispatch = useDispatch();
   const isRegister = useSelector((state) => state.auth.isRegister);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  const isLight = useSelector((state) => state.theme.isLight);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -21,7 +22,10 @@ const App = () => {
       dispatch(authActions.loggedUserId(userId));
       navigate("/home");
     }
-  }, [dispatch, navigate]);
+
+    document.body.style.backgroundColor = isLight ? "white" : "#121212";
+    document.body.style.color = isLight ? "black" : "white";
+  }, [dispatch, navigate, isLight]);
 
   return (
     <>

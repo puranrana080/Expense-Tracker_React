@@ -1,7 +1,8 @@
-import React, {  useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import { expenseActions } from "../store/expense";
+import { themeActions } from "../store/theme";
 
 const Expenses = () => {
   const dispatch = useDispatch();
@@ -9,6 +10,7 @@ const Expenses = () => {
   const userId = useSelector((state) => state.auth.userId);
   const check = useSelector((state) => state.expense.formCheck);
   const isEditing = useSelector((state) => state.expense.isEditing);
+  const isPremium = useSelector((state) => state.theme.isPremiumActivated);
 
   const totalAmount = useMemo(() => {
     return Object.values(expenseData).reduce((acc, curr) => {
@@ -31,7 +33,9 @@ const Expenses = () => {
       }
     });
   };
-   fetchExpenses();
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
 
   const handleDeleteExpense = async (id) => {
     const response = await fetch(
@@ -64,16 +68,57 @@ const Expenses = () => {
     }
   };
 
+  const activatePremiumHandler = () => {
+    if (!isPremium) {
+      dispatch(themeActions.activatePremium());
+    }
+  };
+
+  const downloadCSV = (expenseData) => {
+    if (!expenseData || Object.keys(expenseData).length === 0) return;
+    const headers = ["Amount", "Description", "Category"];
+    const rows = Object.values(expenseData).map((item) => [
+      item.amount,
+      item.description,
+      item.category,
+    ]);
+    const csvContent = [headers, ...rows].map((e) => e.join(",")).join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset='utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "expenses.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <>
       <div>
         <hr></hr>
+
         <div>
           <h1>All Expenses</h1>
           {totalAmount > 1000 && (
             <div>
-              <button className="btn btn-dark btn-sm">Activate Premium </button>
+              <button
+                className="btn btn-dark btn-sm"
+                onClick={activatePremiumHandler}
+              >
+                {!isPremium ? "Activate Premium" : "Premium Activated"}
+              </button>
             </div>
+          )}
+          {isPremium && (
+            <button
+              className="btn btn-primary btn-sm mt-3"
+              onClick={() => downloadCSV(expenseData)}
+            >
+              Download Expenses
+            </button>
           )}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "2px" }}>

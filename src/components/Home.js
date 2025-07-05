@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import UpdateProfile from "./UpdateProfile";
 import { useNavigate } from "react-router-dom";
 import NewExpense from "./NewExpense";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { authActions } from "../store/auth";
+import { themeActions } from "../store/theme";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -12,6 +13,8 @@ const Home = () => {
     localStorage.getItem("profileCompleted")
   );
   const navigate = useNavigate();
+  const isPremium = useSelector((state) => state.theme.isPremiumActivated);
+  const isLight = useSelector((state) => state.theme.isLight);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -42,6 +45,15 @@ const Home = () => {
             gap: "1rem",
           }}
         >
+          {isPremium && (
+            <button
+              onClick={() => dispatch(themeActions.toggleTheme())}
+              className="btn btn-light btn-sm"
+            >
+              {isLight ? "🌑 Dark" : "🔆 Light"}
+            </button>
+          )}
+
           <div
             style={{
               backgroundColor: "pink",
@@ -59,6 +71,7 @@ const Home = () => {
               {profileComplete ? "Update Now" : "Complete Now"}
             </span>
           </div>
+
           <button className="btn btn-danger btn-sm" onClick={handleLogout}>
             Logout
           </button>
