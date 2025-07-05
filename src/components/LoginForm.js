@@ -41,10 +41,10 @@ const LoginForm = () => {
       ).then((res) => {
         if (res.ok) {
           return res.json().then((data) => {
-            console.log("Data when user logged in ", data);
             let tokenId = data.idToken;
             const currentUserId = data.localId;
             localStorage.setItem("token", tokenId);
+            localStorage.setItem("userId", currentUserId);
             dispatch(authActions.loggedUserId(currentUserId));
             alert("Logged In");
             dispatch(authActions.login());
@@ -91,7 +91,6 @@ const LoginForm = () => {
       });
     }
   };
-  console.log("form data", formData);
 
   return (
     <>

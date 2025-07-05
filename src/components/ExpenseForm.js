@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { expenseActions } from "../store/expense";
 
-const ExpenseForm = (props) => {
+const ExpenseForm = () => {
   const dispatch = useDispatch();
   const isEditing = useSelector((state) => state.expense.isEditing);
   const userId = useSelector((state) => state.auth.userId);
   const editData = useSelector((state) => state.expense.editData);
+  const check = useSelector((state) => state.expense.formCheck);
 
   const [userInput, setUserInput] = useState({
     enteredAmount: "",
@@ -15,19 +16,27 @@ const ExpenseForm = (props) => {
   });
 
   useEffect(() => {
-    if (isEditing && editData) {
+    if (check && isEditing && editData && Object.keys(editData).length > 0) {
       setUserInput({
         enteredAmount: editData.enteredAmount || "",
         enteredDescription: editData.enteredDescription || "",
         enteredCategory: editData.enteredCategory || "",
       });
     }
-  }, [editData, isEditing]);
+  }, [editData, isEditing, check]);
 
   const changeHandler = (e) => {
     setUserInput((prev) => {
       return { ...prev, [e.target.name]: e.target.value };
     });
+  };
+
+  const cancelClickHandler = () => {
+    dispatch(expenseActions.toggleFormCheck());
+    dispatch(expenseActions.setEditData());
+    if (isEditing) {
+      dispatch(expenseActions.toggleEditing());
+    }
   };
 
   const handleAddExpense = (e) => {
@@ -54,10 +63,6 @@ const ExpenseForm = (props) => {
               description: userInput.enteredDescription,
               category: userInput.enteredCategory,
             };
-            // setExpenseData((prev) => ({
-            //   ...prev,
-            //   [generatedId]: newExpense,
-            // }));
             dispatch(
               expenseActions.addExpense({
                 id: generatedId,
@@ -65,7 +70,7 @@ const ExpenseForm = (props) => {
               })
             );
             alert("Expense Added");
-            props.onAddClick();
+            dispatch(expenseActions.toggleFormCheck());
             setUserInput({
               enteredAmount: "",
               enteredDescription: "",
@@ -99,18 +104,11 @@ const ExpenseForm = (props) => {
       ).then((res) => {
         if (res.ok) {
           return res.json().then((data) => {
-            // const generatedId = data.name;
-            console.log(editData.id);
-            console.log("This is edit res", data);
             const editedExpense = {
               amount: userInput.enteredAmount,
               description: userInput.enteredDescription,
               category: userInput.enteredCategory,
             };
-            // setExpenseData((prev) => ({
-            //   ...prev,
-            //   [editData.id]: editedExpense,
-            // }));
             dispatch(
               expenseActions.editExpense({
                 id: editData.id,
@@ -118,7 +116,9 @@ const ExpenseForm = (props) => {
               })
             );
             alert("Expense Edited");
-            props.onAddClick();
+            dispatch(expenseActions.toggleFormCheck());
+            dispatch(expenseActions.setEditData());
+            dispatch(expenseActions.toggleEditing());
             setUserInput({
               enteredAmount: "",
               enteredDescription: "",
@@ -184,7 +184,7 @@ const ExpenseForm = (props) => {
           </div>
         </div>
         <div className="new-expense__button">
-          <button className="btn btn-danger" onClick={props.onCancelClick}>
+          <button className="btn btn-danger" onClick={cancelClickHandler}>
             Cancel
           </button>
           <button className="btn btn-warning" type="submit">

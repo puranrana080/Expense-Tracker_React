@@ -15,7 +15,9 @@ const Home = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userId");
     localStorage.removeItem("profileCompleted");
+    dispatch(authActions.logout());
     dispatch(authActions.loggedUserId(null));
     navigate("/");
   };

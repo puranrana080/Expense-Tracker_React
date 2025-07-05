@@ -22,16 +22,7 @@ const NewExpense = () => {
             Add Expense
           </button>
         )}
-        {check && (
-          <ExpenseForm
-            onCancelClick={() => {
-              dispatch(expenseActions.toggleFormCheck());
-              dispatch(expenseActions.toggleEditing());
-              dispatch(expenseActions.setEditData())
-            }}
-            onAddClick={() => dispatch(expenseActions.toggleFormCheck())}
-          />
-        )}
+        {check && <ExpenseForm />}
       </div>
       <div
         className="text-center"

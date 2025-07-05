@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, {  useMemo } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import { expenseActions } from "../store/expense";
@@ -7,9 +7,14 @@ const Expenses = () => {
   const dispatch = useDispatch();
   const expenseData = useSelector((state) => state.expense.expenseData);
   const userId = useSelector((state) => state.auth.userId);
+  const check = useSelector((state) => state.expense.formCheck);
+  const isEditing = useSelector((state) => state.expense.isEditing);
 
-  console.log("new data", expenseData);
-  const totalAmount = Object.values(expenseData).reduce((acc,curr)=>acc+curr.amount,0)
+  const totalAmount = useMemo(() => {
+    return Object.values(expenseData).reduce((acc, curr) => {
+      return acc + Number(curr.amount);
+    }, 0);
+  }, [expenseData]);
 
   const fetchExpenses = () => {
     fetch(
@@ -21,15 +26,13 @@ const Expenses = () => {
       if (res.ok) {
         return res.json().then((data) => {
           dispatch(expenseActions.setExpense(data));
-          console.log("All the data ", data);
+          console.log("All Expenses", data);
         });
       }
     });
   };
+   fetchExpenses();
 
-  useEffect(() => {
-    fetchExpenses();
-  },[]);
   const handleDeleteExpense = async (id) => {
     const response = await fetch(
       `https://expensetracker-534d7-default-rtdb.firebaseio.com/expenses/${userId}/${id}.json`,
@@ -37,9 +40,9 @@ const Expenses = () => {
         method: "DELETE",
       }
     );
-    const data = await response.json();
-    console.log("delete dta", data);
+    await response.json();
     fetchExpenses();
+    alert("Expense Deleted");
   };
 
   const handleEditExpense = async (id) => {
@@ -52,10 +55,13 @@ const Expenses = () => {
         enteredCategory: expenseToEdit.category,
       })
     );
+    if (!isEditing) {
+      dispatch(expenseActions.toggleEditing());
+    }
 
-    dispatch(expenseActions.toggleEditing());
-
-    dispatch(expenseActions.toggleFormCheck());
+    if (!check) {
+      dispatch(expenseActions.toggleFormCheck());
+    }
   };
 
   return (
@@ -64,7 +70,11 @@ const Expenses = () => {
         <hr></hr>
         <div>
           <h1>All Expenses</h1>
-         {totalAmount>1000 && <div><button className="btn btn-dark btn-sm">Activate Premium </button></div>} 
+          {totalAmount > 1000 && (
+            <div>
+              <button className="btn btn-dark btn-sm">Activate Premium </button>
+            </div>
+          )}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "2px" }}>
           {expenseData ? (

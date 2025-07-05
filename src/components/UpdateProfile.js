@@ -87,7 +87,7 @@ const UpdateProfile = (props) => {
       }
     });
   };
-  console.log("update", updateData);
+  console.log("updateData", updateData);
   //Updating user Profile Data
   const handleSubmit = (e) => {
     e.preventDefault();
