@@ -119,7 +119,7 @@ const SignUpForm = () => {
           </div>
         </form>
         <p>
-          Already have and account ?{" "}
+          Already have an account ?
           <button
             className="btn btn-warning btn-sm"
             onClick={() => dispatch(authActions.loginForm())}
