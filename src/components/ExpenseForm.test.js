@@ -3,22 +3,9 @@ import ExpenseForm from "./ExpenseForm";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import Expenses from "./Expenses";
+import store from "../store/index";
 
-const mockStore = configureStore([]);
 describe("Renders ExpenseForm", () => {
-  let store;
-
-  beforeEach(() => {
-    store = mockStore({
-      auth: { userId: "test-user" },
-      expense: {
-        isEditing: false,
-        editData: {},
-        formCheck: false,
-      },
-    });
-  });
-
   test("amount label in the form", () => {
     render(
       <Provider store={store}>
